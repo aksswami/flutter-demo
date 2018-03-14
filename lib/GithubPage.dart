@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'Repo.dart';
 
+
 class GithubPage extends StatefulWidget {
   @override
   createState() => new GithubPageState();
@@ -10,17 +11,19 @@ class GithubPage extends StatefulWidget {
 
 class GithubPageState extends State<GithubPage> {
   var _repos = <Repo>[];
+  var _currentUserName = "aksswami";
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   _getRepoList() async {
-    var url = "https://api.github.com/users/aksswami/repos";
+    var url =
+        "https://api.github.com/users/" + _currentUserName.toLowerCase().trim() + "/repos";
     var httpClient = new HttpClient();
 
     var result = <Repo>[];
     try {
       var request = await httpClient.getUrl(Uri.parse(url));
       request.headers.set(
-          "Authorization", "token bbd182f4fd93af042412a32216908fb1e5f02931");
+          "Authorization", "token <ENTER your token here>");
       var response = await request.close();
       print(response.statusCode);
 
@@ -59,6 +62,12 @@ class GithubPageState extends State<GithubPage> {
     });
   }
 
+  void _handleSubmitted(String username) {
+    _currentUserName = username;
+    print(_currentUserName);
+    _getRepoList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,15 +75,31 @@ class GithubPageState extends State<GithubPage> {
   }
 
   Widget _buildSuggestions() {
-    return new ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _repos.length,
-        itemBuilder: (context, i) {
-          if (i.isOdd) return new Divider();
-          final index = i ~/ 2;
+    return new Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          new TextFormField(
+            decoration: const InputDecoration(
+              labelText: 'Github username to view his/her repos (ex: aksswami)',
+            ),
+            keyboardType: TextInputType.text,
+            onFieldSubmitted: (String value) {
+              _handleSubmitted(value);
+            },
+          ),
+          const Divider(height: 1.0),
+          new Expanded(
+            child: new ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _repos.length,
+                itemBuilder: (context, i) {
+                  if (i.isOdd) return new Divider();
+                  final index = i ~/ 2;
 
-          return _buildRow(_repos[index]);
-        });
+                  return _buildRow(_repos[index]);
+                }),
+          )
+        ]);
   }
 
   Widget _buildRow(Repo repo) {
