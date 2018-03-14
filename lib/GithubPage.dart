@@ -33,10 +33,25 @@ class GithubPageState extends State<GithubPage> {
           result.add(repo);
           print(repo);
         }
+      } else {
+        showDialog(
+          context: context,
+          child: new AlertDialog(
+            title: new Text("Error!"),
+            content: new Text("Got response code ${response.statusCode}"),
+          ),
+        );
       }
     } catch (exception) {
       result = <Repo>[];
       print(exception);
+      showDialog(
+        context: context,
+        child: new AlertDialog(
+          title: new Text("Error!"),
+          content: new Text("Exception ${exception.toString()}"),
+        ),
+      );
     }
 
     setState(() {
